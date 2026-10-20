@@ -144,7 +144,10 @@ inline bool TryLoadModule()
         return false;
     }
 #elif __APPLE__
-    ModuleHandle() = dlopen("libopenal.dylib", RTLD_NOW | RTLD_LOCAL);
+    // --work-dir can point at game data elsewhere; the bundled library stays beside the executable.
+    ModuleHandle() = dlopen("@executable_path/libopenal.dylib", RTLD_NOW | RTLD_LOCAL);
+    if (ModuleHandle() == nullptr)
+        ModuleHandle() = dlopen("libopenal.dylib", RTLD_NOW | RTLD_LOCAL);
     if (ModuleHandle() == nullptr)
     {
         SetError("libopenal.dylib is not available");

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Poseidon — Mac creator guide</title>
+<style>
+:root{color-scheme:light dark;font:17px/1.65 system-ui,sans-serif;background:#f5f4ee;color:#25352d}body{max-width:850px;margin:64px auto;padding:0 28px 60px}h1{font-size:48px;line-height:1.1;letter-spacing:-2px}h2{margin-top:48px;font-size:26px}h3{margin-top:28px}a{color:#466a4b}p,li{max-width:75ch}.eyebrow{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#60745d}.intro{font-size:21px;color:#526151}code{font-size:14px;background:#e8eadd;padding:2px 5px;border-radius:4px}pre{padding:18px;background:#e8eadd;overflow:auto;border-radius:12px;line-height:1.5}pre code{padding:0}.note{border-left:3px solid #80906c;padding:10px 20px;background:#eceee4}footer{margin-top:64px;border-top:1px solid #c6cebf;padding-top:20px;font-size:14px;color:#60745d}@media(prefers-color-scheme:dark){:root{background:#17231d;color:#e6ebdf}.intro,.eyebrow,footer{color:#b0bfa6}a{color:#bdd6ab}code,pre,.note{background:#27372b}}
+</style>
+<p class="eyebrow">Poseidon · Community tools · macOS</p>
+<h1>From game to workshop.</h1>
+<p class="intro">Play the demo, inspect its models in Blender, and build isolated mods with the engine’s native tools.</p>
+
+<h2>Play</h2>
+<ol>
+<li>Open <strong>Poseidon Launcher.app</strong>.</li>
+<li>Choose the installed <strong>Demo</strong> or <strong>Remastered</strong> data folder. The launcher checks for the configuration, base archives, and fonts.</li>
+<li>Select the matching edition and click <strong>Play</strong>. Fullscreen uses the desktop’s borderless fullscreen mode.</li>
+</ol>
+<p>Game data is separate from the app. The original 2001 game files are not a complete Remastered installation. The <a href="https://store.steampowered.com/app/4819000/">free Steam demo</a> provides a small starting point.</p>
+<p>Change resolution and graphics detail in the game’s options. Changes to the launcher’s display mode apply the next time you start the game. A legacy command containing <code>--window</code> forces windowed startup; use <code>--display-mode borderless</code> instead.</p>
+<h3>Using a trackpad</h3>
+<p>Click with one finger for the left mouse button and two fingers for the right button. Enable <strong>System Settings → Trackpad → Point &amp; Click → Secondary click</strong>. That menu also offers a bottom-right corner click. For a held right button, press and hold rather than tapping. <a href="https://support.apple.com/guide/mac-help/mh35853/mac">Apple’s trackpad instructions</a>.</p>
+
+<h2>Inspect models in Blender</h2>
+<ol>
+<li>Install <code>Poseidon-Blender-macos-arm64.zip</code> through Blender’s <strong>Preferences → Add-ons → Install from Disk</strong>. Use the package matching Blender’s CPU architecture.</li>
+<li>Enable <strong>Poseidon P3D Model Importer</strong>.</li>
+<li>In the 3D viewport, open the sidebar with <strong>N</strong> and choose <strong>Poseidon</strong>. Set <strong>Game Data</strong> to the same folder used by the launcher.</li>
+<li>Click <strong>Scan P3D Models</strong>, select a model, and import it. For example, the demo contains <code>data3d/str borovice.p3d</code>, a pine tree.</li>
+<li>Use Material Preview to see the textures. The collections separate visual detail levels from collision and other special meshes.</li>
+</ol>
+<p class="note">The add-on is an importer. It preserves useful reference data, but it is not a complete Blender-to-P3D exporter. Saving a <code>.blend</code> does not update the game. Animated characters also need verified skeletons, selections, attachment points, and collision meshes.</p>
+<p>The Mac workflow was tested with native Apple Silicon Blender 5.2.2: scanning the demo’s 14 archives found 455 models; the pine imported with seven LODs and its textures.</p>
+
+<h2>Build and inspect a mod</h2>
+<p>The optional <code>PoseidonTools</code> executable is inside the app at <code>Contents/Resources/Engine/PoseidonTools</code>. It can convert textures, inspect and binarize P3D files, and pack PBO archives. These examples assume you built from a source checkout:</p>
+<pre><code>tools="$PWD/dist/arm64-macos-rwdi-local/PoseidonTools"
+"$tools" image convert source/grass.png source/nvl_grass/grass.paa --format DXT1
+"$tools" model inspect source/nvl_grass/grass.p3d --all
+mkdir -p mods/@grass/AddOns
+"$tools" pbo pack source/nvl_grass mods/@grass/AddOns/nvl_grass.pbo
+"$tools" pbo list mods/@grass/AddOns/nvl_grass.pbo</code></pre>
+<p>A game-ready addon needs a valid <code>config.cpp</code> and model/texture paths that match its PBO prefix. Use a separate mod folder for experiments. In the launcher, click <strong>Mods → Add</strong> and choose that folder. Remove it from the list to return to the base game. Later folders take precedence when the engine resolves matching files.</p>
+<p><code>model convert input.p3d output.p3d</code> writes the engine’s optimized ODOL format; it is not a general export from Blender. Keep editable source assets separately.</p>
+<h3>Try the grass study</h3>
+<p>The source includes <code>examples/vegetation/build.sh</code>, which generates an original static grass mesh with three detail levels, converts its opaque texture to DXT1, and packs a small addon. Add the generated <code>@grass-study</code> folder in the launcher, click <strong>Preview Model…</strong>, and open <code>source/nvl_grass/grass.p3d</code>. Press F1 in the viewer for its controls.</p>
+<p>This is an editable pipeline prototype. It adds an object class without replacing vegetation in existing maps. General model export, character animation, and large landscape performance still need further work.</p>
+
+<h2>Build the Mac tools from source</h2>
+<pre><code>bash cmake/build-macos.sh PoseidonGame PoseidonGameDemo PoseidonTools PoseidonFormatsDLL
+bash cmake/package-macos.sh
+python3 apps/tools/BlenderAddon/package.py \
+  --library dist/arm64-macos-rwdi-local/PoseidonFormats.dylib \
+  --output dist/Poseidon-Blender-macos-arm64.zip</code></pre>
+<p>The default deployment target is macOS 15.0. Local bundles are ad-hoc signed and are not notarized releases. The package contains the engine and license notices; it does not contain game data.</p>
+<h2>If something fails</h2>
+<p>Use <strong>Logs</strong> in the launcher. Each game session records a separate log in <code>~/Library/Application Support/Poseidon Launcher/Logs</code>. A missing-data warning usually means the selected folder is one level above or below the actual installation, or the download is incomplete.</p>
+<p>For Blender, use the matching native library beside the add-on’s Python files. The Mac library is named <code>PoseidonFormats.dylib</code>. The source tree includes a background smoke test that scans and imports real game assets without changing your Blender preferences.</p>
+<footer>Community project. Source and changes: <a href="https://github.com/novalis78/CWR-CE/tree/feat/macos-native-tools">Mac launcher and tools</a>. Community engine: <a href="https://github.com/ofpisnotdead-com/CWR-CE">CWR-CE</a>. Engine license and third-party notices are bundled under <code>Contents/Resources/Licenses</code>. Game assets and individual mods have their own licenses.</footer>
+</html>

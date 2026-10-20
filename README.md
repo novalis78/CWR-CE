@@ -69,6 +69,23 @@ or the [Steam demo folder](https://store.steampowered.com/app/4819000/Arma_Cold_
 > [!WARNING]
 > Compiled binaries are not drop-in compatible with original game folder. See https://github.com/ofpisnotdead-com/CWR-CE/issues/8#issuecomment-4772323490 and https://github.com/ofpisnotdead-com/CWR-CE/issues/29#issuecomment-4803747960 for more info.
 
+### Native Mac launcher and creation tools
+
+This fork's `feat/macos-native-tools` branch adds a SwiftUI launcher, a packaged
+Blender importer, and a reproducible vegetation example. See the
+[Mac launcher guide](apps/macos/README.md) and
+[creator guide](docs/macos-creator-guide.html).
+
+```sh
+bash cmake/build-macos.sh PoseidonGame PoseidonGameDemo PoseidonTools PoseidonFormatsDLL
+bash cmake/package-macos.sh
+```
+
+The build helper uses Xcode's compiler and Make, downloads pinned dependencies,
+and defaults to macOS 15.0 compatibility. `CWR_BUILD_JOBS` controls parallelism
+(default 4). Builds carry the `macos-ce-local` version tag. Game data is obtained
+separately; the app accepts an existing Remastered demo or full installation.
+
 ## Layout
 
 - [Apps](apps/README.md) - executable targets
