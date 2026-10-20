@@ -1,0 +1,4 @@
+tags = ["exclusive", "ui", "player-feedback", "savegame"]
+binary = "PoseidonGame"
+mission = "tests/integration/missions/player_feedback.Abel"
+timeout = 120

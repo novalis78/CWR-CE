@@ -389,6 +389,7 @@ void InGameUI::SimulateHUDNonAI(const Camera& camera, Entity* vehicle, CameraTyp
 
 void InGameUI::SimulateHUD(const Camera& camera, EntityAI* vehicle, CameraType cam, float deltaT)
 {
+    UpdatePlayerFeedback();
     auto& input = InputSubsystem::Instance();
     if (input.GetActionToDo(UAHelp))
     {

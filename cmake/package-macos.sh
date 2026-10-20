@@ -38,7 +38,7 @@ fi
 cp "$root/LICENSE" "$resources/Licenses/Engine-LICENSE.txt"
 cp "$root/THIRD_PARTY_NOTICES.md" "$resources/Licenses/THIRD_PARTY_NOTICES.md"
 cat > "$resources/Licenses/SOURCE.txt" <<SOURCE
-Source: https://github.com/novalis78/CWR-CE/tree/feat/macos-native-tools
+Source: https://github.com/novalis78/CWR-CE/tree/$(git -C "$root" rev-parse HEAD)
 Launcher checkout: $(git -C "$root" rev-parse HEAD)
 Built on: $(date -u '+%Y-%m-%dT%H:%M:%SZ')
 The engine is GPL-3.0-or-later with additional terms; see Engine-LICENSE.txt.
