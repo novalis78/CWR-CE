@@ -5,11 +5,48 @@ Supports both MLOD (source) and ODOL v7 (binarized) formats with textures, selec
 
 ## Quick Install
 
+### macOS (native Apple Silicon)
+
+Build and package from the repository root:
+
+```sh
+cmake --preset macos-arm64-clang-rwdi
+cmake --build build/macos-arm64-clang-rwdi --target PoseidonFormatsDLL PoseidonTools
+python3 apps/tools/BlenderAddon/package.py \
+  --library dist/arm64-macos-rwdi/PoseidonFormats.dylib \
+  --output dist/Poseidon-Blender-macos-arm64.zip
+```
+
+Install the ZIP through **Preferences > Add-ons > Install from Disk** and enable
+**Poseidon P3D Model Importer**. Open the viewport's **N > Poseidon** sidebar,
+select the Demo/Remastered game-data directory, then **Scan P3D Models**. The
+archive browser imports models and resolves their textures without unpacking
+the entire installation. The library and Blender must use the same CPU
+architecture; use `x64` in the build path for an Intel build.
+
+The Mac dylib uses a host-compatible global allocator and exports only its C
+API. Linking the engine's custom global allocator into the plugin causes
+cross-allocator frees inside the host's libc++ when mounting archives.
+
+Verify the packaged add-on against the free demo without changing preferences:
+
+```sh
+/Applications/Blender.app/Contents/MacOS/Blender \
+  --background --factory-startup --python-exit-code 1 \
+  --python apps/tools/BlenderAddon/tests/smoke_import.py -- \
+  --addon dist/Poseidon-Blender-macos-arm64.zip --game-data /path/to/Demo \
+  --output build/reference-tree.blend
+```
+
+This imports all seven LODs of the demo pine tree and checks its textures.
+The add-on imports models; it does not provide general P3D export or a verified
+round-trip for animated characters.
+
 ### Option A: Install from ZIP
 
 1. Build the DLL (if not already):
    ```
-   cmake --build build\win-x64-clang-rwdi --target PoseidonFormats_shared
+   cmake --build build\win-x64-clang-rwdi --target PoseidonFormatsDLL
    ```
 
 2. Package the addon:
