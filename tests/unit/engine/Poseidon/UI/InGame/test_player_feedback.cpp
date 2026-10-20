@@ -71,3 +71,39 @@ TEST_CASE("Health feedback clamps damage and flashes only when health decreases"
     state.Observe(std::numeric_limits<float>::quiet_NaN(), true, 0, 16, true);
     CHECK(state.HealthPercent() == 0);
 }
+
+TEST_CASE("Hidden feedback tracks changes without replaying transient notices", "[UI][PlayerFeedback]")
+{
+    PlayerFeedbackState state;
+    REQUIRE(state.Visible());
+    state.Observe(0, true, 0, 10, true);
+    state.Observe(0.25f, true, 1, 11, true);
+    REQUIRE(state.KillOpacity(11) == 1);
+    REQUIRE(state.DamageOpacity(11) == 1);
+    state.SetVisible(false);
+    CHECK_FALSE(state.Visible());
+    CHECK(state.KillOpacity(11) == 0);
+    CHECK(state.DamageOpacity(11) == 0);
+    state.Observe(0.5f, true, 2, 11.1f, true);
+    state.SetVisible(true);
+    CHECK(state.Visible());
+    CHECK(state.HealthPercent() == 50);
+    CHECK(state.Kills() == 2);
+    CHECK(state.KillOpacity(11.1f) == 0);
+    CHECK(state.DamageOpacity(11.1f) == 0);
+    state.Observe(0.75f, true, 3, 12, true);
+    CHECK(state.KillOpacity(12) == 1);
+    CHECK(state.DamageOpacity(12) == 1);
+}
+
+TEST_CASE("HUD resets preserve the player's temporary visibility choice", "[UI][PlayerFeedback]")
+{
+    PlayerFeedbackState state;
+    state.SetVisible(false);
+    state.Reset();
+    state.Observe(0.25f, true, 4, 10, true);
+    CHECK_FALSE(state.Visible());
+    CHECK(state.HealthPercent() == 75);
+    CHECK(state.Kills() == 4);
+    CHECK(state.KillOpacity(10) == 0);
+}

@@ -391,6 +391,11 @@ void InGameUI::SimulateHUD(const Camera& camera, EntityAI* vehicle, CameraType c
 {
     UpdatePlayerFeedback();
     auto& input = InputSubsystem::Instance();
+    if (input.GetActionToDo(UATogglePlayerFeedback) && !GWorld->Chat() &&
+        !GWorld->GetPlayerSuspended() && !GWorld->HasOptions())
+    {
+        _playerFeedback.SetVisible(!_playerFeedback.Visible());
+    }
     if (input.GetActionToDo(UAHelp))
     {
         ShowLastHint();

@@ -16,10 +16,10 @@ using namespace Poseidon;
 RString InGameUI::GetPlayerFeedbackStateText() const
 {
     char text[128];
-    std::snprintf(text, sizeof(text), "health=%d;kills=%d;notice=%d;healthEnabled=%d;killsEnabled=%d",
+    std::snprintf(text, sizeof(text), "health=%d;kills=%d;notice=%d;healthEnabled=%d;killsEnabled=%d;visible=%d",
                   _playerFeedback.HealthPercent(), _playerFeedback.Kills(),
                   _playerFeedback.KillOpacity(Glob.uiTime.toFloat()) > 0.0f,
-                  GetShowPlayerHealth(), GetShowKillConfirmation());
+                  GetShowPlayerHealth(), GetShowKillConfirmation(), _playerFeedback.Visible());
     return text;
 }
 
@@ -49,7 +49,7 @@ void InGameUI::DrawPlayerFeedback()
 {
     const bool healthEnabled = GetShowPlayerHealth();
     const bool killsEnabled = GetShowKillConfirmation();
-    if ((!healthEnabled && !killsEnabled) || !_playerFeedback.Initialized() || !_font24)
+    if (!_playerFeedback.Visible() || (!healthEnabled && !killsEnabled) || !_playerFeedback.Initialized() || !_font24)
         return;
 
     const float now = Glob.uiTime.toFloat();
