@@ -1,9 +1,4 @@
-"""Run with Blender --background --factory-startup --python-exit-code 1.
-
-Pass -- --addon ZIP --game-data DIR [--output reference.blend].
-Exercises the installed package, C API, archive browser, meshes and textures.
-It does not change the user's add-ons or preferences.
-"""
+"""Check a packaged add-on's archive browser, mesh import and textures."""
 import argparse
 from pathlib import Path
 import sys

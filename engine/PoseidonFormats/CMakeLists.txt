@@ -21,9 +21,7 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     if(WIN32)
         target_link_libraries(PoseidonFormatsDLL PRIVATE Poseidon winmm)
     elseif(APPLE)
-        # A plugin cannot interpose libc++'s allocator in the host process.
-        # Keep global C++ allocations compatible with the system runtime;
-        # otherwise std::string growth can free an engine-heap pointer.
+        # Match the host allocator and expose only the C API.
         target_sources(PoseidonFormatsDLL PRIVATE MacHostAllocator.cpp)
         target_link_options(PoseidonFormatsDLL PRIVATE
             "LINKER:-exported_symbols_list,${CMAKE_CURRENT_SOURCE_DIR}/macos.exports"

@@ -1,7 +1,5 @@
-// This dylib runs inside Blender, alongside the system libc++. Its C++
-// allocations must use the same malloc zone as libc++ (e.g. string growth).
-// Defining these here also prevents the static engine's GlobalOperators.o
-// from being pulled into the plugin. Engine-specific allocators are unchanged.
+// Use libc++-compatible allocation in the host and keep the engine's
+// GlobalOperators.o out of this dylib.
 #include <cstdlib>
 #include <new>
 

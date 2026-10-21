@@ -7,40 +7,32 @@ Supports both MLOD (source) and ODOL v7 (binarized) formats with textures, selec
 
 ### macOS (native Apple Silicon)
 
-Build and package from the repository root:
+From the repository root (use `x64` for an Intel build; Blender must match):
 
 ```sh
 cmake --preset macos-arm64-clang-rwdi
-cmake --build build/macos-arm64-clang-rwdi --target PoseidonFormatsDLL PoseidonTools
+cmake --build build/macos-arm64-clang-rwdi --target PoseidonFormatsDLL
 python3 apps/tools/BlenderAddon/package.py \
   --library dist/arm64-macos-rwdi/PoseidonFormats.dylib \
   --output dist/Poseidon-Blender-macos-arm64.zip
 ```
 
-Install the ZIP through **Preferences > Add-ons > Install from Disk** and enable
-**Poseidon P3D Model Importer**. Open the viewport's **N > Poseidon** sidebar,
-select the Demo/Remastered game-data directory, then **Scan P3D Models**. The
-archive browser imports models and resolves their textures without unpacking
-the entire installation. The library and Blender must use the same CPU
-architecture; use `x64` in the build path for an Intel build.
+Install the ZIP via **Preferences > Add-ons > Install from Disk**, then enable
+**Poseidon P3D Model Importer**. In **N > Poseidon**, select the game-data directory
+and **Scan P3D Models** to import models and textures directly from archives.
 
-The Mac dylib uses a host-compatible global allocator and exports only its C
-API. Linking the engine's custom global allocator into the plugin causes
-cross-allocator frees inside the host's libc++ when mounting archives.
-
-Verify the packaged add-on against the free demo without changing preferences:
+CI runs this smoke test on macOS arm64 with Blender 5.2.2 and the free demo:
 
 ```sh
 /Applications/Blender.app/Contents/MacOS/Blender \
   --background --factory-startup --python-exit-code 1 \
   --python apps/tools/BlenderAddon/tests/smoke_import.py -- \
-  --addon dist/Poseidon-Blender-macos-arm64.zip --game-data /path/to/Demo \
-  --output build/reference-tree.blend
+  --addon dist/Poseidon-Blender-macos-arm64.zip --game-data /path/to/Demo
 ```
 
-This imports all seven LODs of the demo pine tree and checks its textures.
-The add-on imports models; it does not provide general P3D export or a verified
-round-trip for animated characters.
+It checks the pine tree's meshes and textures without saving preferences;
+add `--output build/reference-tree.blend` to save the result. P3D export is
+unsupported, and animated-character round trips are unverified.
 
 ### Option A: Install from ZIP
 
